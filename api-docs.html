@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KazJobs API Docs</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Syne:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --text: #e2e2f0;
+      --muted: #6b6b8a;
+      --accent: #7c6af7;
+      --accent-glow: rgba(124, 106, 247, 0.15);
+      --green: #4ade80;
+      --blue: #60a5fa;
+      --orange: #fb923c;
+      --red: #f87171;
+      --yellow: #fbbf24;
+      --cyan: #22d3ee;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Syne', sans-serif;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Layout */
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-logo h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .sidebar-logo span {
+      color: var(--accent);
+    }
+
+    .sidebar-logo p {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 4px;
+    }
+
+    .sidebar-section {
+      padding: 8px 20px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-size: 13px;
+      color: var(--muted);
+      border-left: 2px solid transparent;
+    }
+
+    .sidebar-item:hover,
+    .sidebar-item.active {
+      color: var(--text);
+      background: var(--accent-glow);
+      border-left-color: var(--accent);
+    }
+
+    .sidebar-item .method-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 2px 5px;
+      border-radius: 3px;
+      min-width: 36px;
+      text-align: center;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      padding: 40px;
+      max-width: 900px;
+    }
+
+    .page-header {
+      margin-bottom: 40px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-header h2 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .base-url {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      margin-top: 16px;
+    }
+
+    .base-url span {
+      color: var(--accent);
+    }
+
+    /* Section */
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .section-desc {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    /* Endpoint card */
+    .endpoint {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .endpoint:hover {
+      border-color: var(--accent);
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .method {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      min-width: 58px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .GET {
+      background: rgba(96, 165, 250, 0.15);
+      color: var(--blue);
+    }
+
+    .POST {
+      background: rgba(74, 222, 128, 0.15);
+      color: var(--green);
+    }
+
+    .PATCH {
+      background: rgba(251, 191, 36, 0.15);
+      color: var(--yellow);
+    }
+
+    .DELETE {
+      background: rgba(248, 113, 113, 0.15);
+      color: var(--red);
+    }
+
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      flex: 1;
+    }
+
+    .endpoint-path .param {
+      color: var(--accent);
+    }
+
+    .endpoint-desc {
+      font-size: 12px;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .lock-icon {
+      font-size: 12px;
+      color: var(--yellow);
+      opacity: 0.8;
+    }
+
+    .role-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .role-employer {
+      background: rgba(251, 146, 60, 0.15);
+      color: var(--orange);
+    }
+
+    .role-seeker {
+      background: rgba(34, 211, 238, 0.15);
+      color: var(--cyan);
+    }
+
+    .role-public {
+      background: rgba(107, 107, 138, 0.15);
+      color: var(--muted);
+    }
+
+    /* Expandable body */
+    .endpoint-body {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .endpoint-body.open {
+      display: block;
+    }
+
+    .body-section {
+      margin-top: 16px;
+    }
+
+    .body-section h4 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .code-block {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.7;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .key {
+      color: var(--accent);
+    }
+
+    .val {
+      color: var(--green);
+    }
+
+    .type {
+      color: var(--cyan);
+    }
+
+    .req {
+      color: var(--red);
+    }
+
+    .opt {
+      color: var(--muted);
+    }
+
+    .comment {
+      color: #3d3d5c;
+    }
+
+    .chevron {
+      color: var(--muted);
+      font-size: 12px;
+      transition: transform 0.2s;
+    }
+
+    .chevron.open {
+      transform: rotate(90deg);
+    }
+
+    /* Auth section */
+    .auth-box {
+      background: rgba(124, 106, 247, 0.08);
+      border: 1px solid rgba(124, 106, 247, 0.2);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 32px;
+      font-size: 13px;
+    }
+
+    .auth-box h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .auth-box code {
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--green);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <h1>Kaz<span>Jobs</span></h1>
+        <p>API v1 · REST</p>
+      </div>
+
+      <div class="sidebar-section">Auth</div>
+      <div class="sidebar-item" onclick="scrollTo('auth')">
+        <span class="method-badge POST">POST</span> Register
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('auth')">
+        <span class="method-badge POST">POST</span> Login
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('auth')">
+        <span class="method-badge POST">POST</span> Logout
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('auth')">
+        <span class="method-badge POST">POST</span> Refresh
+      </div>
+
+      <div class="sidebar-section">Users</div>
+      <div class="sidebar-item" onclick="scrollTo('users')">
+        <span class="method-badge GET" style="background:rgba(96,165,250,0.15);color:#60a5fa">GET</span> Profile
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('users')">
+        <span class="method-badge GET" style="background:rgba(96,165,250,0.15);color:#60a5fa">GET</span> All Users
+      </div>
+
+      <div class="sidebar-section">Jobs</div>
+      <div class="sidebar-item" onclick="scrollTo('jobs')">
+        <span class="method-badge GET" style="background:rgba(96,165,250,0.15);color:#60a5fa">GET</span> All Jobs
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('jobs')">
+        <span class="method-badge GET" style="background:rgba(96,165,250,0.15);color:#60a5fa">GET</span> Single Job
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('jobs')">
+        <span class="method-badge POST">POST</span> Create Job
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('jobs')">
+        <span class="method-badge PATCH" style="background:rgba(251,191,36,0.15);color:#fbbf24">PATCH</span> Update Job
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('jobs')">
+        <span class="method-badge DELETE" style="background:rgba(248,113,113,0.15);color:#f87171">DELETE</span> Delete
+        Job
+      </div>
+
+      <div class="sidebar-section">Applications</div>
+      <div class="sidebar-item" onclick="scrollTo('apps')">
+        <span class="method-badge POST">POST</span> Apply
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('apps')">
+        <span class="method-badge GET" style="background:rgba(96,165,250,0.15);color:#60a5fa">GET</span> My Apps
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('apps')">
+        <span class="method-badge GET" style="background:rgba(96,165,250,0.15);color:#60a5fa">GET</span> Single App
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('apps')">
+        <span class="method-badge PATCH" style="background:rgba(251,191,36,0.15);color:#fbbf24">PATCH</span> Update
+        Status
+      </div>
+      <div class="sidebar-item" onclick="scrollTo('apps')">
+        <span class="method-badge DELETE" style="background:rgba(248,113,113,0.15);color:#f87171">DELETE</span> Delete
+        App
+      </div>
+    </nav>
+
+    <!-- Main -->
+    <main class="main">
+      <div class="page-header">
+        <h2>API Reference</h2>
+        <p>Complete documentation for KazJobs REST API</p>
+        <div class="base-url">
+          Base URL: <span>http://localhost:4000/api/v1</span>
+        </div>
+      </div>
+
+      <div class="auth-box">
+        <h3>🔐 Authentication</h3>
+        <p>Protected routes require a Bearer token in the Authorization header:</p>
+        <br>
+        <code>Authorization: Bearer &lt;accessToken&gt;</code>
+      </div>
+
+      <!-- AUTH -->
+      <div class="section" id="auth">
+        <div class="section-title">Auth</div>
+        <p class="section-desc">Register, login and manage user sessions</p>
+
+        <!-- Register -->
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method POST">POST</span>
+            <span class="endpoint-path">/users/register</span>
+            <span class="role-badge role-public">public</span>
+            <span class="endpoint-desc">Create new account</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"username"</span>: <span class="val">"john"</span>, <span class="req">//
+                  required</span>
+                <span class="key">"email"</span>: <span class="val">"john@email.com"</span>, <span class="req">//
+                  required</span>
+                <span class="key">"password"</span>: <span class="val">"123456"</span>, <span class="req">// required,
+                  min 6</span>
+                <span class="key">"role"</span>: <span class="val">"seeker"</span> <span class="opt">// optional: seeker
+                  | employer</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+            <div class="body-section">
+              <h4>Response 201</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"message"</span>: <span class="val">"User created successfully."</span>,
+                <span class="key">"user"</span>: <span class="type">{ id, username, email }</span>,
+                <span class="key">"accessToken"</span>: <span class="val">"eyJ..."</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Login -->
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method POST">POST</span>
+            <span class="endpoint-path">/users/login</span>
+            <span class="role-badge role-public">public</span>
+            <span class="endpoint-desc">Login to account</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"email"</span>: <span class="val">"john@email.com"</span>, <span class="req">//
+                  required</span>
+                <span class="key">"password"</span>: <span class="val">"123456"</span> <span class="req">//
+                  required</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"message"</span>: <span class="val">"User logged in successfully."</span>,
+                <span class="key">"user"</span>: <span class="type">{ id, username, email }</span>,
+                <span class="key">"accessToken"</span>: <span class="val">"eyJ..."</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logout -->
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method POST">POST</span>
+            <span class="endpoint-path">/users/logout</span>
+            <span class="role-badge role-public">public</span>
+            <span class="endpoint-desc">Logout user</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"email"</span>: <span class="val">"john@email.com"</span> <span class="req">//
+                  required</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"message"</span>: <span class="val">"User logged out successfully."</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Refresh Token -->
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method POST">POST</span>
+            <span class="endpoint-path">/users/refresh</span>
+            <span class="role-badge role-public">public</span>
+            <span class="endpoint-desc">Get new access token</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"refreshToken"</span>: <span class="val">"eyJ..."</span> <span class="req">//
+                  required</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"accessToken"</span>: <span class="val">"eyJ..."</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div class="section" id="users">
+        <div class="section-title">Users</div>
+        <p class="section-desc">User profile and listing</p>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method GET">GET</span>
+            <span class="endpoint-path">/users/profile</span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-public">any role</span>
+            <span class="endpoint-desc">Get own profile</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Headers</h4>
+              <div class="code-block"><span class="key">Authorization</span>: <span class="val">Bearer
+                  &lt;accessToken&gt;</span></div>
+            </div>
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"user"</span>: <span class="type">{ _id, username, email, role, createdAt }</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method GET">GET</span>
+            <span class="endpoint-path">/users?role=<span class="param">seeker|employer</span></span>
+            <span class="role-badge role-public">public</span>
+            <span class="endpoint-desc">Get all users</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Query Params</h4>
+              <div class="code-block"><span class="key">role</span>: <span class="val">"seeker"</span> | <span
+                  class="val">"employer"</span> <span class="opt">// optional filter</span></div>
+            </div>
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"users"</span>: <span class="type">[{ _id, username, email, role }]</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JOBS -->
+      <div class="section" id="jobs">
+        <div class="section-title">Jobs</div>
+        <p class="section-desc">Job listings management</p>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method GET">GET</span>
+            <span class="endpoint-path">/jobs</span>
+            <span class="role-badge role-public">public</span>
+            <span class="endpoint-desc">Get all jobs</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Query Params</h4>
+              <div class="code-block"><span class="key">search</span>: <span class="val">"node"</span> <span
+                  class="opt">// searches title, description, skills</span>
+                <span class="key">category</span>: <span class="val">"technology"</span> <span class="opt">// technology
+                  | finance | healthcare | engineering | education | retail</span>
+                <span class="key">type</span>: <span class="val">"full-time"</span> <span class="opt">// full-time |
+                  part-time | remote</span>
+                <span class="key">location</span>: <span class="val">"Almaty"</span> <span class="opt">// any location
+                  string</span>
+              </div>
+            </div>
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"jobs"</span>: <span class="type">[{ _id, title, description, salary, location, type,
+                  category, skills, employer, deadline }]</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method GET">GET</span>
+            <span class="endpoint-path">/jobs/<span class="param">:id</span></span>
+            <span class="role-badge role-public">public</span>
+            <span class="endpoint-desc">Get single job</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"job"</span>: <span class="type">{ ...jobFields, employer: { username, email }
+                  }</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method POST">POST</span>
+            <span class="endpoint-path">/jobs</span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-employer">employer</span>
+            <span class="endpoint-desc">Create job</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"title"</span>: <span class="val">"Backend Developer"</span>, <span class="req">//
+                  required</span>
+                <span class="key">"description"</span>: <span class="val">"We need a dev..."</span>, <span
+                  class="req">// required</span>
+                <span class="key">"location"</span>: <span class="val">"Almaty"</span>, <span class="opt">//
+                  optional</span>
+                <span class="key">"salary"</span>: <span class="val">500000</span>, <span class="opt">// optional</span>
+                <span class="key">"type"</span>: <span class="val">"full-time"</span>, <span class="opt">// full-time |
+                  part-time | remote</span>
+                <span class="key">"category"</span>: <span class="val">"technology"</span>, <span class="opt">//
+                  technology | finance | healthcare | engineering | education | retail</span>
+                <span class="key">"skills"</span>: <span class="val">["Node.js", "MongoDB"]</span>, <span class="opt">//
+                  optional</span>
+                <span class="key">"deadline"</span>: <span class="val">"2026-06-01"</span> <span class="opt">//
+                  optional</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method PATCH">PATCH</span>
+            <span class="endpoint-path">/jobs/<span class="param">:id</span></span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-employer">employer</span>
+            <span class="endpoint-desc">Update job</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="opt">// any job fields you want to update</span>
+                <span class="comment">{</span>
+                <span class="key">"salary"</span>: <span class="val">600000</span>,
+                <span class="key">"title"</span>: <span class="val">"Senior Backend Developer"</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method DELETE">DELETE</span>
+            <span class="endpoint-path">/jobs/<span class="param">:id</span></span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-employer">employer</span>
+            <span class="endpoint-desc">Delete job</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"message"</span>: <span class="val">"Job deleted successfully."</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- APPLICATIONS -->
+      <div class="section" id="apps">
+        <div class="section-title">Applications</div>
+        <p class="section-desc">Job application management</p>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method POST">POST</span>
+            <span class="endpoint-path">/applications</span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-seeker">seeker</span>
+            <span class="endpoint-desc">Apply to job</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"job"</span>: <span class="val">"jobId"</span>, <span class="req">// required</span>
+                <span class="key">"CV"</span>: <span class="val">"url"</span> <span class="opt">// optional</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method GET">GET</span>
+            <span class="endpoint-path">/applications</span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-seeker">seeker</span>
+            <span class="endpoint-desc">My applications</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"applications"</span>: <span class="type">[{ _id, job, applicant, status, CV,
+                  createdAt }]</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method GET">GET</span>
+            <span class="endpoint-path">/applications/<span class="param">:id</span></span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-public">seeker | employer</span>
+            <span class="endpoint-desc">Single application</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"application"</span>: <span class="type">{</span>
+                <span class="key">job</span>: <span class="type">{ title, location, salary, employer }</span>,
+                <span class="key">applicant</span>: <span class="type">{ username, email }</span>,
+                <span class="key">status</span>: <span class="val">"pending"</span> | <span
+                  class="val">"accepted"</span> | <span class="val">"rejected"</span>
+                <span class="type">}</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method PATCH">PATCH</span>
+            <span class="endpoint-path">/applications/<span class="param">:id</span></span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-employer">employer</span>
+            <span class="endpoint-desc">Update status</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Request Body</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"status"</span>: <span class="val">"accepted"</span> | <span
+                  class="val">"rejected"</span> | <span class="val">"pending"</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method DELETE">DELETE</span>
+            <span class="endpoint-path">/applications/<span class="param">:id</span></span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-public">seeker | employer</span>
+            <span class="endpoint-desc">Delete application</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"message"</span>: <span class="val">"Application deleted successfully."</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="endpoint">
+          <div class="endpoint-header" onclick="toggle(this)">
+            <span class="method GET">GET</span>
+            <span class="endpoint-path">/applications/job/<span class="param">:id</span></span>
+            <span class="lock-icon">🔒</span>
+            <span class="role-badge role-employer">employer</span>
+            <span class="endpoint-desc">All apps for a job</span>
+            <span class="chevron">▶</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="body-section">
+              <h4>Response 200</h4>
+              <div class="code-block"><span class="comment">{</span>
+                <span class="key">"applications"</span>: <span class="type">[{ ...app, applicant: { username, email }
+                  }]</span>
+                <span class="comment">}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    function toggle(header) {
+      const body = header.nextElementSibling;
+      const chevron = header.querySelector('.chevron');
+      body.classList.toggle('open');
+      chevron.classList.toggle('open');
+    }
+
+    function scrollTo(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+
+</body>
+
+</html>
