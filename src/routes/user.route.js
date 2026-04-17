@@ -8,8 +8,13 @@ import {
   getUsers,
   updateUser,
   changePassword,
+  getCV,
+  uploadCV,
 } from "../controllers/user.controller.js"
 import authMiddleware from "../middlewares/auth.middleware.js"
+import multer from "multer"
+
+const upload = multer({ dest: "uploads/" })
 
 const router = Router()
 
@@ -23,5 +28,9 @@ router
 router.route("/refresh").post(getRefreshToken)
 router.route("/").get(getUsers)
 router.route("/change-password").post(authMiddleware, changePassword)
+router
+  .route("/cv")
+  .get(authMiddleware, getCV)
+  .post(authMiddleware, upload.single("cv"), uploadCV)
 
 export default router

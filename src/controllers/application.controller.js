@@ -88,7 +88,14 @@ const getJobApplications = async (req, res) => {
     return res.status(500).json({ message: err.message })
   }
 }
+const submitApplication = async (req, res) => {
+  try{
+    
+  }catch(e){
 
+  }
+}
+ 
 export {
   createApplication,
   getApplications,

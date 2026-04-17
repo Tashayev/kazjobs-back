@@ -6,7 +6,10 @@ import {
   getProfileService,
   getUsersService,
   changePasswordService,
+  getCVService,
+  uploadCVService,
 } from "../services/auth.service.js"
+
 
 const registerUser = async (req, res) => {
   try {
@@ -138,6 +141,27 @@ const changePassword = async (req, res) => {
 //   }
 // }
 
+const uploadCV = async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: "No file uploaded." })
+    const cv = await uploadCVService(req.user._id, req.file.path)
+    if (!cv) return res.status(404).json({ message: "CV not found." })
+    res.status(200).json({ cv })
+  } catch (err) {
+    return res.status(500).json({ message: err.message })
+  }
+}
+
+const getCV = async (req, res) => {
+  try {
+    const cv = await getCVService(req.user._id)
+    if (!cv) return res.status(404).json({ message: "CV not found." })
+    res.status(200).json({ cv })
+  } catch (err) {
+    return res.status(500).json({ message: err.message })
+  }
+}
+
 export {
   registerUser,
   loginUser,
@@ -146,6 +170,8 @@ export {
   getProfile,
   getUsers,
   updateUser,
-  changePassword
+  changePassword,
+  uploadCV,
+  getCV,
   //deleteUser,
 }

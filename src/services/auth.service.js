@@ -2,6 +2,9 @@ import { User } from "../moduls/user.module.js"
 import { generateToken } from "./token.service.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose"
+import multer from "multer"
+
+const uploader = multer({ dest: __dirname + "/uploads/" })
 
 export const registerService = async ({ username, email, password, role }) => {
   const session = await mongoose.startSession()
@@ -73,3 +76,17 @@ export const changePasswordService = async (id, oldPassword, newPassword) => {
 //   if (!user) throw new Error("User not found.")
 //   await User.findByIdAndDelete(id)
 // }
+
+
+export const uploadCVService = async (userId, filePath) => {
+  return await User.findByIdAndUpdate(
+    userId,
+    { cv: filePath }, 
+    { new: true }
+  ).select("cv")
+}
+
+
+export const getCVService = async (id) => {
+  return await Application.findById(id).select("CV")
+}

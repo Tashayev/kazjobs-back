@@ -34,6 +34,10 @@ const userSchema = new Schema(
       enum: ["seeker", "employer"],
       default: "seeker",
     },
+    cv: {
+      type: String,
+      default: null,
+    },
   },
   {
     timestamps: true,

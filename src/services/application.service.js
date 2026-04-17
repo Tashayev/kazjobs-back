@@ -2,6 +2,7 @@
 import { Application } from "../moduls/application.module.js"
 import { Job } from "../moduls/job.module.js"
 
+
 export const createNewApplication = async ({ job, CV, applicant }) => {
   const existingApplication = await Application.findOne({ job, applicant })
   if (existingApplication) throw new Error("Already applied to this job.")
@@ -10,6 +11,11 @@ export const createNewApplication = async ({ job, CV, applicant }) => {
 
 export const getMyApplications = async (applicantId) => {
   return await Application.find({ applicant: applicantId })
+    .populate({
+      path: "job",
+      select: "title location salary type employer",
+      populate: { path: "employer", select: "username email" }
+    })
 }
 
 export const getApplicationById = async (id) => {
@@ -18,7 +24,7 @@ export const getApplicationById = async (id) => {
     .populate({
       path: "job",
       select: "title location salary employer",
-      populate: { path: "employer", select: "username email" }
+      populate: { path: "employer", select: "username email" },
     })
 }
 
@@ -44,6 +50,13 @@ export const deleteApplicationById = async (id, user) => {
 export const getApplicationsByJobId = async (jobId, employerId) => {
   const job = await Job.findOne({ _id: jobId, employer: employerId })
   if (!job) return null
-  return await Application.find({ job: jobId })
-    .populate("applicant", "username email")
+  return await Application.find({ job: jobId }).populate(
+    "applicant",
+    "username email",
+  )
 }
+
+// export const submitApplicationSevice = async (jobId, seekerId) => {
+//   const job = await Job.findById({ _id: jobId })
+//   if (!job) return null
+// }
