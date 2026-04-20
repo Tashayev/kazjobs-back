@@ -1,7 +1,6 @@
 import express from "express"
 import cors from "cors"
-import dotenv from "dotenv"
-dotenv.config({ path: "./.env" })
+
 
 import userRouter from "./routes/user.route.js"
 import jobRouter from "./routes/job.routes.js"

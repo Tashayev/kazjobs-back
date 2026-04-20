@@ -2,9 +2,9 @@ import { User } from "../moduls/user.module.js"
 import { generateToken } from "./token.service.js"
 import jwt from "jsonwebtoken"
 import mongoose from "mongoose"
-import multer from "multer"
+import fs from "fs"
+import cloudinary from "../config/cloudinary.js"  
 
-const uploader = multer({ dest: __dirname + "/uploads/" })
 
 export const registerService = async ({ username, email, password, role }) => {
   const session = await mongoose.startSession()
@@ -77,16 +77,36 @@ export const changePasswordService = async (id, oldPassword, newPassword) => {
 //   await User.findByIdAndDelete(id)
 // }
 
+export const uploadCVService = async (userId, file) => {
+  console.log("1. starting upload...")
+  
+  const result = await new Promise((resolve, reject) => {
+    console.log("2. inside promise...")
+    cloudinary.uploader.upload_stream(
+      { folder: "cvs", resource_type: "raw" },
+      (error, result) => {
+        console.log("3. callback hit", error, result)
+        if (error) reject(error)
+        else resolve(result)
+      }
+    ).end(file.buffer)
+  })
 
-export const uploadCVService = async (userId, filePath) => {
+  console.log("4. uploaded to cloudinary:", result.secure_url)
+
   return await User.findByIdAndUpdate(
     userId,
-    { cv: filePath }, 
+    {
+      cv: {
+        url: result.secure_url,
+        originalName: file.originalname,
+        uploadedAt: new Date(),
+      },
+    },
     { new: true }
   ).select("cv")
 }
 
-
-export const getCVService = async (id) => {
-  return await Application.findById(id).select("CV")
+export const getCVService = async (userId) => {
+  return await User.findById(userId).select("cv")
 }

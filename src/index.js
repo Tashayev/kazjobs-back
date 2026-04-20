@@ -1,6 +1,7 @@
+import dotenv from "dotenv"
+dotenv.config({ path: "./.env" })
 import connectDB from "./config/database.js"
 import app from "./app.js"
-
 const startServer = async () => {
   try {
     console.log("Server started")

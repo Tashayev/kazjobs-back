@@ -10,7 +10,6 @@ import {
   uploadCVService,
 } from "../services/auth.service.js"
 
-
 const registerUser = async (req, res) => {
   try {
     const { username, email, password, role } = req.body
@@ -113,7 +112,7 @@ const updateUser = async (req, res) => {
   try {
     const user = await updateUserService(req.user._id, req.body)
     if (!user) return res.status(404).json({ message: "User not found." })
-    
+
     res.status(200).json({ user })
   } catch (err) {
     return res.status(500).json({ message: err.message })
@@ -123,8 +122,15 @@ const updateUser = async (req, res) => {
 const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body
-    if (!oldPassword || !newPassword) return res.status(400).json({ message: "Please provide all the required fields." })
-    const { user, accessToken, refreshToken } = await changePasswordService(req.user._id, oldPassword, newPassword)
+    if (!oldPassword || !newPassword)
+      return res
+        .status(400)
+        .json({ message: "Please provide all the required fields." })
+    const { user, accessToken, refreshToken } = await changePasswordService(
+      req.user._id,
+      oldPassword,
+      newPassword,
+    )
     res.status(200).json({ user, accessToken, refreshToken })
   } catch (err) {
     return res.status(500).json({ message: err.message })
@@ -144,19 +150,19 @@ const changePassword = async (req, res) => {
 const uploadCV = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: "No file uploaded." })
-    const cv = await uploadCVService(req.user._id, req.file.path)
-    if (!cv) return res.status(404).json({ message: "CV not found." })
-    res.status(200).json({ cv })
+    const result = await uploadCVService(req.user._id, req.file)
+    if (!result) return res.status(404).json({ message: "CV not found." })
+    res.status(200).json({ cv: result.cv })
   } catch (err) {
-    return res.status(500).json({ message: err.message })
+    res.status(500).json({ message: err.message })
   }
 }
 
 const getCV = async (req, res) => {
   try {
-    const cv = await getCVService(req.user._id)
-    if (!cv) return res.status(404).json({ message: "CV not found." })
-    res.status(200).json({ cv })
+    const result = await getCVService(req.user._id)
+    if (!result) return res.status(404).json({ message: "CV not found." })
+    res.status(200).json({ cv: result.cv })
   } catch (err) {
     return res.status(500).json({ message: err.message })
   }

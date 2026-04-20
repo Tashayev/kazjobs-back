@@ -35,8 +35,9 @@ const userSchema = new Schema(
       default: "seeker",
     },
     cv: {
-      type: String,
-      default: null,
+      url: { type: String, default: null },
+      originalName: { type: String, default: null },
+      uploadedAt: { type: Date, default: null },
     },
   },
   {
